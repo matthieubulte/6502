@@ -1,0 +1,59 @@
+
+Python commands
+---------------
+    clock duration [duration]
+        1 change duration var
+
+    clock run
+        1 clock_high
+        2 read_addr_bus
+        3 read_data_bus
+        4 sleep
+        5 clock_low
+        6 goto 1
+        [7] stop if SIGINT
+
+    clock tick
+        1 clock_high
+        2 read_addr_bus
+        3 read_data_bus
+        4 sleep
+        5 clock_low
+
+    bus read [data|addr]
+        1 read_addr_bus or read_data_bus
+
+    rom read [addr] [n_bytes]
+        1 read_rom
+        2 n_bytes -= 1
+        3 goto 1 if n_bytes > 0
+
+    rom write [addr] [bytes]
+        1 write_rom
+        3 pop bytes
+        4 goto 1 if bytes != empty
+
+Arduino commands
+----------------
+    void clock_low(void)
+        write clock low
+
+    void clock_high(void)
+        write clock high
+    
+    word8 read_rom(word16)
+        disable cpu bus
+        write addr
+        oe rom
+        read data
+        enable cpu
+
+    void write_rom(word8)
+        disable cpu bus
+
+    word16 read_addr_bus(void)
+        read addr
+
+    word8 read_data_bus(void)
+        read data
+
