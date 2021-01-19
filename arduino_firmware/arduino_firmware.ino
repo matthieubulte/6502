@@ -1,11 +1,10 @@
-#define CLOCK_PIN 24
-
 #define CLOCK_LO 0xf0
 #define CLOCK_HI 0xf1
 #define READ_ADDR 0xf2
 #define READ_DATA 0xf3
 #define READ_RWB 0xf4
 #define READ_EEPROM 0xf5
+#define WRITE_EEPROM 0xf6
 
 byte command, addrLow, addrHigh, data, state;
 
@@ -13,6 +12,7 @@ void setup() {
   Serial.begin(9600);
   Serial.setTimeout(1);
 
+  initEEPROM();
   initClock();
   initBus();
   initCPU();
@@ -70,13 +70,17 @@ void loop() {
       addrHigh = serialRead();
       ok();
 
-      cpuDisconnectFromBus();
-      setAddrLow(addrLow);
-      setAddrHigh(addrHigh);
-      data = readData();
-      cpuConnectToBus();
-      
+      data = eepromRead(addrLow, addrHigh);
       Serial.write(data);
+      break;
+
+    case WRITE_EEPROM:
+      addrLow = serialRead();
+      addrHigh = serialRead();
+      data = serialRead();
+      ok();
+      
+      eepromWrite(addrLow, addrHigh, data);
       break;
       
     default:

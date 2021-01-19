@@ -116,11 +116,15 @@ class Interface:
 
         print()
 
-    def _rom_write(self, addr, byte):
-        return
+    def _rom_write(self, addr, data):
+        self._serial_write(0xf6)
+        self._serial_write(addr & 0xff)
+        self._serial_write((addr >> 8) & 0xff)
+        self._serial_write(data)
+        self._checkok()
 
     def rom_write(self, addr, data):
-        if isinstance(data) != list:
+        if not isinstance(data, list):
             data = [data]
 
         for b in data:

@@ -10,18 +10,29 @@ void dataAs(byte mode) {
 }
 
 void initBus() {
+  highImpedance();
+}
+
+void highImpedance() {
   dataAs(INPUT);
   addrAs(INPUT);
 }
 
 byte readData() {
   dataAs(INPUT);
-  
   byte data = 0;
   for(int i = 0; i < 8; i++) { 
     data = (data<<1) | digitalRead(DATA_START+7-i);
   }
   return data;
+}
+
+void setData(byte data) {
+  dataAs(OUTPUT);
+  for(int i = 0; i < 8; i++) { 
+    digitalWrite(DATA_START+i, data&1);
+    data >>= 1;
+  }
 }
 
 void setAddrLow(byte addrLow) {
@@ -42,7 +53,6 @@ void setAddrHigh(byte addrHigh) {
 
 byte readAddrHigh() {
   addrAs(INPUT);
-  
   byte addr = 0;
   for(int i = 0; i < 8; i++) {
     addr = (addr<<1) | digitalRead(ADDR_START+15-i);
@@ -52,7 +62,6 @@ byte readAddrHigh() {
 
 byte readAddrLow() {
   addrAs(INPUT);
-  
   byte addr = 0;
   for(int i = 8; i < 16; i++) {
     addr = (addr<<1) | digitalRead(ADDR_START+15-i);
