@@ -16,6 +16,7 @@ void setup() {
   initClock();
   initBus();
   initCPU();
+  initRAM();
 }
 
 void ok() {

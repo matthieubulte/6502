@@ -33,7 +33,7 @@ class Interface:
 
         signal.signal(signal.SIGINT, self.handle_interrupt)
 
-    def connect(self, port="/dev/tty.usbmodem141201", baudrate=9600):
+    def connect(self, port="/dev/tty.usbmodem141101", baudrate=9600):
         print("Attempting to connect to", port, "[", baudrate, "]...", end="")
         try:
             self.serial = serial.Serial(port, baudrate=baudrate, timeout=.1)
@@ -169,3 +169,72 @@ class Interface:
 
 interface = Interface()
 interface.connect()
+
+"""
+Examples
+--------
+
+read reset vector:
+interface.rom_read(0xfffc, 2)
+
+write nop loop:
+interface.rom_write(0x8000, [0xea, 0x4c, 0x0, 0x80, 0xea])
+
+run:
+interface.clock_run()
+
+Ctrl+C to stop the clock while running. Interrupt is handled properly.
+"""
+
+"""
+
+0x8000 LDA #$0      0xa9 0x00
+0x8002 PHA          0x48
+0x8003 ADC #$1      0x69 0x01
+0x8005 JMP $0x8000  0x4c 0x00 0x80
+
+interface.rom_write(0x8000, [0xa9, 0x00, 0x48, 0x69, 0x01, 0x4c, 0x00, 0x80])
+
+0x8000 LDA #$1      0xa9 0x01
+0x8002 PHA          0x48
+0x8003 PLA          0x68
+0x8004 ADC #$1      0x69 0x01
+0x8006 PHA          0x48
+0x8007 PLA          0x68
+0x8008 ADC #$1      0x69 0x01
+0x800a PHA          0x48
+0x800b PLA          0x68
+0x800c JMP $0x800c  0x4c 0x0c 0x80
+
+interface.rom_write(0x8000, \
+    [0xa9, 0x01, 0x48, 0x68,\
+     0x69, 0x01, 0x48, 0x68,\
+     0x69, 0x01, 0x48, 0x68,\
+     0x4c, 0x0c, 0x80])
+
+$8000    a9 04     LDA #$04
+$8002    85 00     STA $00
+$8004    a9 02     LDA #$02
+$8006    85 01     STA $01
+$8008    20 10 80  JSR $8010
+$800b    85 02     STA $02
+$800d    4c 20 80  JMP $8020
+$8010    a9 00     LDA #$00
+$8012    a6 00     LDX $00
+$8014    e0 00     CPX #$00
+$8016    f0 07     BEQ $801f
+$8018    ca        DEX 
+$8019    18        CLC 
+$801a    65 01     ADC $01
+$801c    4c 14 80  JMP $8014
+$801f    60        RTS 
+$8020    ea        NOP 
+$8021    4c 20 80  JMP $8020
+
+a9 04 85 00 a9 02 85 01 20 10 80 85 02 4c 20 80 
+a9 00 a6 00 e0 00 f0 07 ca 18 65 01 4c 14 80 60 
+ea 4c 20 80 
+
+interface.rom_write(0x8000, [0xa9, 0x04, 0x85, 0x00, 0xa9, 0x02, 0x85, 0x01, 0x20, 0x10, 0x80, 0x85, 0x02, 0x4c, 0x20, 0x80, 0xa9, 0x00, 0xa6, 0x00, 0xe0, 0x00, 0xf0, 0x07, 0xca, 0x18, 0x65, 0x01, 0x4c, 0x14, 0x80, 0x60, 0xea, 0x4c, 0x20, 0x80])
+    
+"""
