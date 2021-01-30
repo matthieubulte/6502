@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import signal
 import time
 import serial
@@ -15,7 +13,7 @@ def hex16(x):
     return '0x{0:0{1}x}'.format(x,4)
 
 
-def serial_ports():
+def list_serial_ports():
     ports = glob.glob('/dev/tty.*')
     result = []
     for port in ports:
@@ -195,22 +193,3 @@ class Interface:
 
 interface = Interface(clock_speed=500)
 interface.connect("/dev/tty.usbmodem144101")
-
-"""
-Examples
---------
-
-read reset vector:
-interface.rom_read(0xfffc, 2)
-
-write nop loop:
-interface.rom_write(0x8000, [0xea, 0x4c, 0x0, 0x80, 0xea])
-
-compile and upload assembly program:
-interface.upload_program("programs/hello_world.s")
-
-run:
-interface.clock_run()
-
-Ctrl+C to stop the clock while running. Interrupt is handled properly.
-"""
